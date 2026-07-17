@@ -60,7 +60,7 @@ app.use(errorHandler);
 
 app.listen(PORT, () => {
   console.log(`[SERVER] REX Agency running on http://localhost:${PORT}`);
-  console.log('[SERVER] Database: Excel-only mode');
+  console.log('[SERVER] Database: Excel + JSON file storage');
 });
 
 module.exports = app;

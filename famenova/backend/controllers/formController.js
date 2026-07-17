@@ -1,4 +1,4 @@
-const { VALID_NICHES, NICHE_LABELS } = require('../models/Lead');
+const { VALID_NICHES, NICHE_LABELS } = require('../config/constants');
 const { sendLeadNotification } = require('../services/emailService');
 const { appendLead, getLeadCount } = require('../services/excelService');
 const { formatDate } = require('../utils/helpers');

@@ -1,7 +1,7 @@
 {
   "name": "rex-agency",
   "version": "2.0.0",
-  "description": "REX Agency — Full-stack SMMA platform with React, Express, MongoDB, and Admin Dashboard",
+  "description": "REX Agency — Full-stack SMMA platform with React, Express, and Admin Dashboard",
   "private": true,
   "scripts": {
     "install:all": "npm install --prefix backend && npm install --prefix frontend && npm install --prefix admin-dashboard",

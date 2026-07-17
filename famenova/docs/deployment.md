@@ -3,7 +3,6 @@
 ## Prerequisites
 
 - Node.js 18+
-- MongoDB 7+ (local or Atlas)
 - Docker & Docker Compose (for containerized deployment)
 - Gmail App Password for email notifications
 
@@ -27,7 +26,6 @@ docker-compose up -d --build
 - Website: http://localhost:3001
 - Admin Dashboard: http://localhost:3002
 - API: http://localhost:5000
-- MongoDB: localhost:27017
 
 ### 4. Create Admin User
 
@@ -46,26 +44,17 @@ npm install
 npm run install:all
 ```
 
-### 2. Start MongoDB
-
-```bash
-# Local
-mongod --dbpath /data/db
-
-# Or use MongoDB Atlas connection string in .env
-```
-
-### 3. Configure Environment
+### 2. Configure Environment
 
 Edit `.env` with your settings.
 
-### 4. Build Frontend Apps
+### 3. Build Frontend Apps
 
 ```bash
 npm run build
 ```
 
-### 5. Start Backend
+### 4. Start Backend
 
 ```bash
 npm start
@@ -94,11 +83,10 @@ npm run dev:admin
 - [ ] Change default admin password
 - [ ] Configure SMTP credentials
 - [ ] Set NODE_ENV=production
-- [ ] Enable MongoDB authentication
 - [ ] Set up SSL/TLS (nginx reverse proxy)
 - [ ] Configure CORS origins
 - [ ] Set up log rotation
-- [ ] Configure backup for MongoDB
+- [ ] Configure backup for data files
 - [ ] Set up monitoring (health endpoint)
 
 ## Nginx Reverse Proxy Example
@@ -125,12 +113,11 @@ See [Environment Variables](../README.md#environment-variables) in the main READ
 
 ## Troubleshooting
 
-### MongoDB Connection Failed
+### Data Storage Issues
 
-The backend falls back to Excel storage automatically. Check:
-1. MongoDB is running
-2. Connection string is correct
-3. Database user has proper permissions
+The backend uses Excel + JSON file storage. Check:
+1. The dataset directory exists and is writable
+2. EXCEL_PATH is correctly configured in .env
 
 ### Email Not Sending
 

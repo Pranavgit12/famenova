@@ -9,7 +9,6 @@ rex-agency/
 ├── frontend/           # React + Vite public website
 ├── backend/            # Node.js + Express API server
 ├── admin-dashboard/    # React + Vite admin panel
-├── database/           # MongoDB init scripts
 ├── docs/               # Documentation
 ├── docker-compose.yml  # Full stack orchestration
 └── .env                # Environment configuration
@@ -20,9 +19,9 @@ rex-agency/
 | Layer           | Tech                                      |
 | --------------- | ----------------------------------------- |
 | Frontend        | React 18, Vite, React Router, Axios       |
-| Backend         | Node.js, Express, Mongoose, JWT, bcrypt   |
+| Backend         | Node.js, Express, JWT, bcrypt             |
 | Admin Dashboard | React 18, Vite, Recharts, React Hot Toast |
-| Database        | MongoDB 7 (with Excel fallback)           |
+| Database        | Excel + JSON file storage                 |
 | Email           | Nodemailer (Gmail SMTP)                   |
 | Deployment      | Docker Compose                            |
 
@@ -68,7 +67,6 @@ Services:
 - **Frontend**: http://localhost:3001
 - **Admin Dashboard**: http://localhost:3002
 - **Backend API**: http://localhost:5000
-- **MongoDB**: localhost:27017
 
 ## Environment Variables
 
@@ -76,7 +74,6 @@ Services:
 | ---------------- | ------------------------------ | ------------------------------------ |
 | `PORT`           | Backend server port            | `5000`                               |
 | `NODE_ENV`       | Environment mode               | `development`                        |
-| `MONGODB_URI`    | MongoDB connection string      | `mongodb://localhost:27017/rex_agency` |
 | `JWT_SECRET`     | JWT signing secret             | — (required)                         |
 | `JWT_EXPIRES_IN` | JWT token expiry               | `7d`                                 |
 | `SMTP_HOST`      | Gmail SMTP host                | `smtp.gmail.com`                     |
@@ -138,7 +135,7 @@ Default admin credentials:
 - Fully responsive (mobile-first)
 
 ### Backend
-- MongoDB with automatic Excel fallback
+- Excel + JSON file storage
 - JWT authentication with role-based access
 - Email notifications via Gmail SMTP
 - Input validation and sanitization

@@ -4,7 +4,7 @@ const { formatDate, paginate, paginatedResponse } = require('../utils/helpers');
 async function createLead(req, res, next) {
   try {
     const { fullName, phone, location, businessName, niche, notes } = req.body;
-    const { NICHE_LABELS } = require('../models/Lead');
+    const { NICHE_LABELS } = require('../config/constants');
 
     const leadData = {
       fullName: String(fullName).trim(),
