@@ -1,0 +1,86 @@
+version: '3.8'
+
+services:
+  mongodb:
+    image: mongo:7
+    container_name: rex-mongodb
+    restart: unless-stopped
+    ports:
+      - '27017:27017'
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_USER:-rexadmin}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASS:-rexpassword123}
+      MONGO_INITDB_DATABASE: rex_agency
+    volumes:
+      - mongodb_data:/data/db
+      - ./database/init.js:/docker-entrypoint-initdb.js/init.js
+    networks:
+      - rex-network
+    healthcheck:
+      test: ['CMD', 'mongosh', '--eval', 'db.adminCommand("ping")']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: rex-backend
+    restart: unless-stopped
+    ports:
+      - '5000:5000'
+    environment:
+      - PORT=5000
+      - NODE_ENV=production
+      - MONGODB_URI=mongodb://rexadmin:rexpassword123@mongodb:27017/rex_agency?authSource=admin
+      - JWT_SECRET=${JWT_SECRET:-change-this-in-production}
+      - JWT_EXPIRES_IN=7d
+      - SMTP_HOST=${SMTP_HOST:-smtp.gmail.com}
+      - SMTP_PORT=${SMTP_PORT:-587}
+      - SMTP_USER=${SMTP_USER}
+      - SMTP_PASS=${SMTP_PASS}
+      - NOTIFY_EMAIL=${NOTIFY_EMAIL:-rexagency0@gmail.com}
+      - EXCEL_PATH=./dataset/leads.xlsx
+    volumes:
+      - ./backend/dataset:/app/dataset
+      - uploads_data:/app/uploads
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    networks:
+      - rex-network
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: rex-frontend
+    restart: unless-stopped
+    ports:
+      - '3001:80'
+    depends_on:
+      - backend
+    networks:
+      - rex-network
+
+  admin-dashboard:
+    build:
+      context: ./admin-dashboard
+      dockerfile: Dockerfile
+    container_name: rex-admin
+    restart: unless-stopped
+    ports:
+      - '3002:80'
+    depends_on:
+      - backend
+    networks:
+      - rex-network
+
+volumes:
+  mongodb_data:
+  uploads_data:
+
+networks:
+  rex-network:
+    driver: bridge
