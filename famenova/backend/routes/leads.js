@@ -3,7 +3,7 @@ const router = express.Router();
 const { body } = require('express-validator');
 const validate = require('../middleware/validate');
 const { authenticate, authorize } = require('../middleware/auth');
-const { NICHE_LABELS } = require('../models/Lead');
+const { NICHE_LABELS } = require('../config/constants');
 const {
   createLead,
   getAll,

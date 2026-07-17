@@ -31,8 +31,8 @@ export default function Leads() {
 
       const res = await leads.getAll(params);
       const data = res.data;
-      setLeadsList(data.leads || data.data || data || []);
-      setTotal(data.total || data.count || 0);
+      setLeadsList(data.data || data || []);
+      setTotal(data.pagination?.total || 0);
     } catch {
       toast.error('Failed to load leads');
     } finally {

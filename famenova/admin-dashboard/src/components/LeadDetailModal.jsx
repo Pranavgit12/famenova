@@ -11,7 +11,7 @@ export default function LeadDetailModal({ lead, onClose, onUpdate }) {
   const handleSave = async () => {
     setSaving(true);
     try {
-      await leads.update(lead._id || lead.id, { status, notes });
+      await leads.update(lead.id, { status, notes });
       toast.success('Lead updated');
       onUpdate({ ...lead, status, notes });
       onClose();
@@ -22,10 +22,10 @@ export default function LeadDetailModal({ lead, onClose, onUpdate }) {
     }
   };
 
-  const timeline = lead.timeline || [
-    { action: 'Lead created', date: lead.createdAt },
+  const timeline = [
+    { action: 'Lead created', date: lead.submittedAt },
     ...(lead.status !== 'new'
-      ? [{ action: `Status changed to ${lead.status}`, date: lead.updatedAt }]
+      ? [{ action: `Status changed to ${lead.status}`, date: lead.submittedAt }]
       : []),
   ];
 
@@ -33,7 +33,7 @@ export default function LeadDetailModal({ lead, onClose, onUpdate }) {
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
-          <h2 className="modal-title">{lead.name}</h2>
+          <h2 className="modal-title">{lead.fullName}</h2>
           <button className="modal-close" onClick={onClose}>
             ×
           </button>
@@ -42,32 +42,32 @@ export default function LeadDetailModal({ lead, onClose, onUpdate }) {
         <div className="modal-body">
           <div className="detail-grid">
             <div className="detail-item">
-              <span className="detail-label">Email</span>
-              <span className="detail-value">{lead.email}</span>
-            </div>
-            <div className="detail-item">
               <span className="detail-label">Phone</span>
               <span className="detail-value">{lead.phone || '—'}</span>
             </div>
             <div className="detail-item">
-              <span className="detail-label">Company</span>
-              <span className="detail-value">{lead.company || '—'}</span>
+              <span className="detail-label">Business</span>
+              <span className="detail-value">{lead.businessName || '—'}</span>
             </div>
             <div className="detail-item">
               <span className="detail-label">Niche</span>
               <span className="detail-value">{lead.niche || '—'}</span>
             </div>
             <div className="detail-item">
-              <span className="detail-label">Budget</span>
-              <span className="detail-value">{lead.budget || '—'}</span>
-            </div>
-            <div className="detail-item">
               <span className="detail-label">Location</span>
               <span className="detail-value">{lead.location || '—'}</span>
             </div>
+            <div className="detail-item">
+              <span className="detail-label">Status</span>
+              <span className="detail-value">{getStatusLabel(lead.status)}</span>
+            </div>
+            <div className="detail-item">
+              <span className="detail-label">Submitted</span>
+              <span className="detail-value">{lead.submittedAt || '—'}</span>
+            </div>
             <div className="detail-item full-width">
-              <span className="detail-label">Message</span>
-              <span className="detail-value">{lead.message || 'No message provided'}</span>
+              <span className="detail-label">Notes</span>
+              <span className="detail-value">{lead.notes || 'No notes'}</span>
             </div>
           </div>
 
@@ -81,9 +81,7 @@ export default function LeadDetailModal({ lead, onClose, onUpdate }) {
               >
                 <option value="new">New</option>
                 <option value="contacted">Contacted</option>
-                <option value="qualified">Qualified</option>
                 <option value="closed">Closed</option>
-                <option value="lost">Lost</option>
               </select>
             </div>
 

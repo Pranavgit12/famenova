@@ -2,11 +2,12 @@ import { getStatusColor, getStatusLabel, formatDate } from '../utils/helpers';
 
 export default function LeadsTable({ leads, onRowClick, sortField, sortDir, onSort }) {
   const columns = [
-    { key: 'name', label: 'Name' },
-    { key: 'email', label: 'Email' },
+    { key: 'fullName', label: 'Name' },
+    { key: 'businessName', label: 'Business' },
+    { key: 'phone', label: 'Phone' },
     { key: 'niche', label: 'Niche' },
     { key: 'status', label: 'Status' },
-    { key: 'createdAt', label: 'Created' },
+    { key: 'submittedAt', label: 'Submitted' },
   ];
 
   const renderSortIndicator = (key) => {
@@ -41,16 +42,17 @@ export default function LeadsTable({ leads, onRowClick, sortField, sortDir, onSo
       </thead>
       <tbody>
         {leads.map((lead) => (
-          <tr key={lead._id || lead.id} onClick={() => onRowClick(lead)}>
-            <td style={{ fontWeight: 500 }}>{lead.name}</td>
-            <td style={{ color: 'var(--text-secondary)' }}>{lead.email}</td>
+          <tr key={lead.id} onClick={() => onRowClick(lead)}>
+            <td style={{ fontWeight: 500 }}>{lead.fullName}</td>
+            <td style={{ color: 'var(--text-secondary)' }}>{lead.businessName}</td>
+            <td style={{ color: 'var(--text-secondary)' }}>{lead.phone}</td>
             <td>{lead.niche || '—'}</td>
             <td>
               <span className={`badge badge-${getStatusColor(lead.status)}`}>
                 {getStatusLabel(lead.status)}
               </span>
             </td>
-            <td style={{ color: 'var(--text-secondary)' }}>{formatDate(lead.createdAt)}</td>
+            <td style={{ color: 'var(--text-secondary)' }}>{formatDate(lead.submittedAt)}</td>
           </tr>
         ))}
       </tbody>

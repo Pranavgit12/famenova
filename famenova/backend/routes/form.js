@@ -3,7 +3,7 @@ const router = express.Router();
 const { body } = require('express-validator');
 const validate = require('../middleware/validate');
 const { submitForm, getLeadCountEndpoint } = require('../controllers/formController');
-const { VALID_NICHES } = require('../models/Lead');
+const { VALID_NICHES } = require('../config/constants');
 
 const formValidation = [
   body('fullName')

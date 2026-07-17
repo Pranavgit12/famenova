@@ -30,15 +30,15 @@ export default function Dashboard() {
       try {
         const [statsRes, leadsRes, nicheRes, trendRes] = await Promise.allSettled([
           leads.getStats(),
-          leads.getAll({ limit: 10, sort: '-createdAt' }),
+          leads.getAll({ limit: 10 }),
           analytics.getByNiche(),
           analytics.getTrends(),
         ]);
 
-        if (statsRes.status === 'fulfilled') setStats(statsRes.value.data);
-        if (leadsRes.status === 'fulfilled') setRecentLeads(leadsRes.value.data.leads || leadsRes.value.data || []);
-        if (nicheRes.status === 'fulfilled') setNicheData(nicheRes.value.data || []);
-        if (trendRes.status === 'fulfilled') setTrendData(trendRes.value.data || []);
+        if (statsRes.status === 'fulfilled') setStats(statsRes.value.data.data);
+        if (leadsRes.status === 'fulfilled') setRecentLeads(leadsRes.value.data.data || []);
+        if (nicheRes.status === 'fulfilled') setNicheData(nicheRes.value.data.data || []);
+        if (trendRes.status === 'fulfilled') setTrendData(trendRes.value.data.data || []);
       } catch {
         /* handled by individual checks */
       } finally {
@@ -56,6 +56,8 @@ export default function Dashboard() {
     );
   }
 
+  const byStatus = stats?.byStatus || {};
+
   return (
     <div>
       <div className="stat-cards">
@@ -68,24 +70,20 @@ export default function Dashboard() {
         <StatCard
           icon="★"
           label="New Leads"
-          value={formatNumber(stats?.new ?? 0)}
+          value={formatNumber(byStatus.new ?? 0)}
           color="purple"
-          trend={stats?.newTrend}
-          trendDir={stats?.newTrendDir || 'up'}
         />
         <StatCard
           icon="☎"
           label="Contacted"
-          value={formatNumber(stats?.contacted ?? 0)}
+          value={formatNumber(byStatus.contacted ?? 0)}
           color="yellow"
         />
         <StatCard
           icon="✓"
           label="Closed"
-          value={formatNumber(stats?.closed ?? 0)}
+          value={formatNumber(byStatus.closed ?? 0)}
           color="emerald"
-          trend={stats?.closedTrend}
-          trendDir={stats?.closedTrendDir || 'up'}
         />
       </div>
 
@@ -187,24 +185,26 @@ export default function Dashboard() {
               <thead>
                 <tr>
                   <th>Name</th>
-                  <th>Email</th>
+                  <th>Business</th>
+                  <th>Phone</th>
                   <th>Niche</th>
                   <th>Status</th>
-                  <th>Created</th>
+                  <th>Submitted</th>
                 </tr>
               </thead>
               <tbody>
                 {recentLeads.map((lead) => (
-                  <tr key={lead._id || lead.id}>
-                    <td style={{ fontWeight: 500 }}>{lead.name}</td>
-                    <td style={{ color: 'var(--text-secondary)' }}>{lead.email}</td>
+                  <tr key={lead.id}>
+                    <td style={{ fontWeight: 500 }}>{lead.fullName}</td>
+                    <td style={{ color: 'var(--text-secondary)' }}>{lead.businessName}</td>
+                    <td style={{ color: 'var(--text-secondary)' }}>{lead.phone}</td>
                     <td>{lead.niche || '—'}</td>
                     <td>
                       <span className={`badge badge-${lead.status === 'new' ? 'new' : lead.status === 'contacted' ? 'contacted' : lead.status === 'closed' ? 'closed' : 'new'}`}>
                         {lead.status}
                       </span>
                     </td>
-                    <td style={{ color: 'var(--text-secondary)' }}>{formatDate(lead.createdAt)}</td>
+                    <td style={{ color: 'var(--text-secondary)' }}>{formatDate(lead.submittedAt)}</td>
                   </tr>
                 ))}
               </tbody>

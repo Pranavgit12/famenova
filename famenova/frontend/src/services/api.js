@@ -8,12 +8,12 @@ const api = axios.create({
 })
 
 export async function submitForm(data) {
-  const res = await api.post('/submit', data)
+  const res = await api.post('/form/submit', data)
   return res.data
 }
 
 export async function getLeadCount() {
-  const res = await api.get('/leads/count')
+  const res = await api.get('/form/leads/count')
   return res.data
 }
 
