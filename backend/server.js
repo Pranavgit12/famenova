@@ -29,9 +29,14 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 const frontendDist = path.join(__dirname, '..', 'frontend', 'dist');
 const adminDist = path.join(__dirname, '..', 'admin-dashboard', 'dist');
+const fs = require('fs');
 
-app.use(express.static(frontendDist));
-app.use('/admin', express.static(adminDist));
+if (fs.existsSync(frontendDist)) {
+  app.use(express.static(frontendDist));
+}
+if (fs.existsSync(adminDist)) {
+  app.use('/admin', express.static(adminDist));
+}
 
 app.get('/api/health', (_req, res) => {
   res.json({
@@ -48,8 +53,13 @@ app.use('/api', routes);
 
 app.get('*', (req, res, next) => {
   if (req.path.startsWith('/api')) return next();
-  if (req.path.startsWith('/admin')) return res.sendFile(path.join(adminDist, 'index.html'));
-  res.sendFile(path.join(frontendDist, 'index.html'));
+  if (req.path.startsWith('/admin') && fs.existsSync(adminDist)) {
+    return res.sendFile(path.join(adminDist, 'index.html'));
+  }
+  if (fs.existsSync(frontendDist)) {
+    return res.sendFile(path.join(frontendDist, 'index.html'));
+  }
+  res.status(404).json({ success: false, message: 'Not found' });
 });
 
 app.use('/api/*', (_req, res) => {
