@@ -3,9 +3,12 @@ import SplashScreen from './components/SplashScreen'
 import Navbar from './components/Navbar'
 import Hero from './components/Hero'
 import Services from './components/Services'
+import Industries from './components/Industries'
 import Results from './components/Results'
 import Process from './components/Process'
 import InquiryForm from './components/InquiryForm'
+import Booking from './components/Booking'
+import CaseStudies from './components/CaseStudies'
 import Footer from './components/Footer'
 import Modal from './components/Modal'
 
@@ -29,8 +32,11 @@ function App() {
       <Navbar openModal={openModal} />
       <Hero openModal={openModal} />
       <Services />
+      <Industries />
       <Results />
       <Process />
+      <CaseStudies />
+      <Booking />
       <InquiryForm />
       <Footer openModal={openModal} />
       <Modal isOpen={modalOpen} onClose={closeModal} />

@@ -34,6 +34,27 @@ const CASE_STUDIES = [
       { value: '4.8x', label: 'ROAS' },
     ],
   },
+  {
+    mediaLabel: 'Sample Campaign Concept',
+    videoSrc: '',
+    title: 'Cafe Growth \u2014 Before & After',
+    isBeforeAfter: true,
+    description:
+      'A sample campaign concept showing how strategic reels, targeted ads, and consistent content can transform a local cafe\u2019s digital presence.',
+    before: {
+      label: 'Before',
+      points: ['1k followers', 'Low engagement', 'No online enquiries'],
+    },
+    after: {
+      label: 'After',
+      points: ['Better reels', 'More enquiries', 'More customers'],
+    },
+    metrics: [
+      { value: '5x', label: 'Followers' },
+      { value: '3x', label: 'Engagement' },
+      { value: '40+', label: 'Enquiries/Mo' },
+    ],
+  },
 ]
 
 export default function Results() {
@@ -80,7 +101,7 @@ function ResultStat({ target, prefix, suffix, label, delay }) {
   )
 }
 
-function CaseCard({ mediaLabel, videoSrc, title, description, metrics, delay }) {
+function CaseCard({ mediaLabel, videoSrc, title, description, metrics, isBeforeAfter, before, after, delay }) {
   const { ref, isVisible } = useScrollReveal()
   const videoRef = useRef(null)
 
@@ -92,26 +113,49 @@ function CaseCard({ mediaLabel, videoSrc, title, description, metrics, delay }) 
 
   return (
     <div ref={ref} className={`case-card reveal${isVisible ? ' visible' : ''} reveal-delay-${delay}`}>
-      <div className={`case-card-media${videoSrc ? ' has-video' : ''}`}>
-        {videoSrc ? (
-          <video
-            ref={videoRef}
-            className="case-card-video"
-            src={videoSrc}
-            muted
-            loop
-            playsInline
-          />
-        ) : (
-          <div className="case-card-media-placeholder">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-              <polygon points="5 3 19 12 5 21 5 3" />
-            </svg>
-            <span>{mediaLabel}</span>
+      {isBeforeAfter ? (
+        <div className="case-card-before-after">
+          <div className="case-card-ba-label">{mediaLabel}</div>
+          <div className="case-card-ba-columns">
+            <div className="case-card-ba-col before">
+              <div className="case-card-ba-heading">{before.label}</div>
+              <ul>
+                {before.points.map(p => <li key={p}>{p}</li>)}
+              </ul>
+            </div>
+            <div className="case-card-ba-divider">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </div>
+            <div className="case-card-ba-col after">
+              <div className="case-card-ba-heading">{after.label}</div>
+              <ul>
+                {after.points.map(p => <li key={p}>{p}</li>)}
+              </ul>
+            </div>
           </div>
-        )}
-        <div className="case-card-overlay"></div>
-      </div>
+        </div>
+      ) : (
+        <div className={`case-card-media${videoSrc ? ' has-video' : ''}`}>
+          {videoSrc ? (
+            <video
+              ref={videoRef}
+              className="case-card-video"
+              src={videoSrc}
+              muted
+              loop
+              playsInline
+            />
+          ) : (
+            <div className="case-card-media-placeholder">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                <polygon points="5 3 19 12 5 21 5 3" />
+              </svg>
+              <span>{mediaLabel}</span>
+            </div>
+          )}
+          <div className="case-card-overlay"></div>
+        </div>
+      )}
       <div className="case-card-body">
         <h3>{title}</h3>
         <p>{description}</p>
