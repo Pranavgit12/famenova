@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useRef, useEffect } from 'react'
 import useScrollReveal from '../hooks/useScrollReveal'
 import useAnimatedCounter from '../hooks/useAnimatedCounter'
 
@@ -82,30 +82,26 @@ function ResultStat({ target, prefix, suffix, label, delay }) {
 
 function CaseCard({ mediaLabel, videoSrc, title, description, metrics, delay }) {
   const { ref, isVisible } = useScrollReveal()
-  const [playing, setPlaying] = useState(false)
+  const videoRef = useRef(null)
+
+  useEffect(() => {
+    if (isVisible && videoRef.current) {
+      videoRef.current.play().catch(() => {})
+    }
+  }, [isVisible])
 
   return (
     <div ref={ref} className={`case-card reveal${isVisible ? ' visible' : ''} reveal-delay-${delay}`}>
-      <div
-        className={`case-card-media${videoSrc ? ' has-video' : ''}`}
-        onClick={videoSrc && !playing ? () => setPlaying(true) : undefined}
-        style={videoSrc ? { cursor: 'pointer' } : undefined}
-      >
-        {playing && videoSrc ? (
+      <div className={`case-card-media${videoSrc ? ' has-video' : ''}`}>
+        {videoSrc ? (
           <video
+            ref={videoRef}
             className="case-card-video"
             src={videoSrc}
-            autoPlay
-            controls
+            muted
+            loop
             playsInline
           />
-        ) : videoSrc ? (
-          <div className="case-card-media-placeholder">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-              <polygon points="5 3 19 12 5 21 5 3" />
-            </svg>
-            <span>{mediaLabel}</span>
-          </div>
         ) : (
           <div className="case-card-media-placeholder">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
