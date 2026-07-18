@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import useScrollReveal from '../hooks/useScrollReveal'
 import useAnimatedCounter from '../hooks/useAnimatedCounter'
 
@@ -11,6 +12,7 @@ const STATS = [
 const CASE_STUDIES = [
   {
     mediaLabel: 'Video Testimonial',
+    videoId: '_5qf157PLCU',
     title: 'E-Commerce Brand \u2014 Skincare',
     description:
       'Scaled from $4K to $82K/month in 90 days through Meta Ads and UGC-driven content strategy.',
@@ -22,7 +24,8 @@ const CASE_STUDIES = [
   },
   {
     mediaLabel: 'Screenshots & Results',
-    title: 'Local Service Business \u2014 Dental',
+    videoId: 'xCMTCkmPba0',
+    title: 'Local Service Business \u2014 CAFE',
     description:
       'Reduced cost per lead by 68% and generated 340+ qualified leads per month through Google Ads + landing page optimization.',
     metrics: [
@@ -77,17 +80,40 @@ function ResultStat({ target, prefix, suffix, label, delay }) {
   )
 }
 
-function CaseCard({ mediaLabel, title, description, metrics, delay }) {
+function CaseCard({ mediaLabel, videoId, title, description, metrics, delay }) {
   const { ref, isVisible } = useScrollReveal()
+  const [playing, setPlaying] = useState(false)
+
   return (
     <div ref={ref} className={`case-card reveal${isVisible ? ' visible' : ''} reveal-delay-${delay}`}>
-      <div className="case-card-media">
-        <div className="case-card-media-placeholder">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-            <polygon points="5 3 19 12 5 21 5 3" />
-          </svg>
-          <span>{mediaLabel}</span>
-        </div>
+      <div
+        className={`case-card-media${videoId ? ' has-video' : ''}`}
+        onClick={videoId ? () => setPlaying(true) : undefined}
+        style={videoId ? { cursor: 'pointer' } : undefined}
+      >
+        {playing && videoId ? (
+          <iframe
+            className="case-card-iframe"
+            src={`https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1&controls=0&showinfo=0&playsinline=1`}
+            title={title}
+            allow="autoplay; encrypted-media"
+            allowFullScreen
+          />
+        ) : videoId ? (
+          <img
+            className="case-card-thumb"
+            src={`https://img.youtube.com/vi/${videoId}/hqdefault.jpg`}
+            alt={title}
+            draggable="false"
+          />
+        ) : (
+          <div className="case-card-media-placeholder">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+              <polygon points="5 3 19 12 5 21 5 3" />
+            </svg>
+            <span>{mediaLabel}</span>
+          </div>
+        )}
         <div className="case-card-overlay"></div>
       </div>
       <div className="case-card-body">
