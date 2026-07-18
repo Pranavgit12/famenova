@@ -13,8 +13,8 @@ import {
   Legend,
 } from 'recharts';
 import StatCard from '../components/StatCard';
-import { leads, analytics } from '../services/api';
-import { formatNumber, formatDate } from '../utils/helpers';
+import { leads } from '../services/api';
+import { formatNumber } from '../utils/helpers';
 
 const COLORS = ['#6366f1', '#a855f7', '#10b981', '#f59e0b', '#ef4444', '#06b6d4'];
 
@@ -22,31 +22,38 @@ export default function Dashboard() {
   const [stats, setStats] = useState(null);
   const [recentLeads, setRecentLeads] = useState([]);
   const [nicheData, setNicheData] = useState([]);
-  const [trendData, setTrendData] = useState([]);
+  const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function fetch() {
       try {
-        const [statsRes, leadsRes, nicheRes, trendRes] = await Promise.allSettled([
+        const [statsRes, leadsRes] = await Promise.allSettled([
           leads.getStats(),
           leads.getAll({ limit: 10 }),
-          analytics.getByNiche(),
-          analytics.getTrends(),
         ]);
 
-        if (statsRes.status === 'fulfilled') setStats(statsRes.value.data.data);
-        if (leadsRes.status === 'fulfilled') setRecentLeads(leadsRes.value.data.data || []);
-        if (nicheRes.status === 'fulfilled') setNicheData(nicheRes.value.data.data || []);
-        if (trendRes.status === 'fulfilled') setTrendData(trendRes.value.data.data || []);
-      } catch {
-        /* handled by individual checks */
+        if (statsRes.status === 'fulfilled') {
+          setStats(statsRes.value.data?.data || statsRes.value.data || null);
+        }
+        if (leadsRes.status === 'fulfilled') {
+          const l = leadsRes.value.data;
+          setRecentLeads(l?.data || l || []);
+        }
+      } catch (err) {
+        setError('Failed to load dashboard data');
       } finally {
         setLoading(false);
       }
     }
     fetch();
   }, []);
+
+  const getNicheData = () => {
+    if (nicheData.length > 0) return nicheData;
+    if (stats?.byNiche) return stats.byNiche;
+    return [];
+  };
 
   if (loading) {
     return (
@@ -56,6 +63,19 @@ export default function Dashboard() {
     );
   }
 
+  if (error) {
+    return (
+      <div className="card">
+        <div className="empty-state">
+          <div className="empty-state-icon">⚠</div>
+          <div className="empty-state-title">{error}</div>
+          <div className="empty-state-text">Refresh the page to try again.</div>
+        </div>
+      </div>
+    );
+  }
+
+  const total = stats?.total ?? 0;
   const byStatus = stats?.byStatus || {};
 
   return (
@@ -64,7 +84,7 @@ export default function Dashboard() {
         <StatCard
           icon="◉"
           label="Total Leads"
-          value={formatNumber(stats?.total ?? 0)}
+          value={formatNumber(total)}
           color="blue"
         />
         <StatCard
@@ -90,87 +110,37 @@ export default function Dashboard() {
       <div className="charts-grid">
         <div className="chart-card">
           <div className="card-header">
-            <h3 className="card-title">Leads Over Time</h3>
-            <span className="card-subtitle">Last 30 days</span>
-          </div>
-          <div className="chart-wrapper">
-            {trendData.length > 0 ? (
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={trendData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#2a2a3a" />
-                  <XAxis
-                    dataKey="date"
-                    tick={{ fill: '#64748b', fontSize: 12 }}
-                    tickFormatter={(d) => formatDate(d)}
-                    stroke="#2a2a3a"
-                  />
-                  <YAxis tick={{ fill: '#64748b', fontSize: 12 }} stroke="#2a2a3a" />
-                  <Tooltip
-                    contentStyle={{
-                      background: '#1a1a2e',
-                      border: '1px solid #2a2a3a',
-                      borderRadius: 8,
-                      color: '#e2e8f0',
-                    }}
-                  />
-                  <Line
-                    type="monotone"
-                    dataKey="count"
-                    stroke="#6366f1"
-                    strokeWidth={2}
-                    dot={false}
-                    activeDot={{ r: 5, fill: '#6366f1' }}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
-            ) : (
-              <div className="empty-state">
-                <div className="empty-state-title">No trend data yet</div>
-              </div>
-            )}
-          </div>
-        </div>
-
-        <div className="chart-card">
-          <div className="card-header">
             <h3 className="card-title">Leads by Niche</h3>
           </div>
           <div className="chart-wrapper">
-            {nicheData.length > 0 ? (
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={nicheData}
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={60}
-                    outerRadius={100}
-                    paddingAngle={3}
-                    dataKey="count"
-                    nameKey="niche"
-                  >
-                    {nicheData.map((_, i) => (
-                      <Cell key={i} fill={COLORS[i % COLORS.length]} />
-                    ))}
-                  </Pie>
-                  <Tooltip
-                    contentStyle={{
-                      background: '#1a1a2e',
-                      border: '1px solid #2a2a3a',
-                      borderRadius: 8,
-                      color: '#e2e8f0',
-                    }}
-                  />
-                  <Legend
-                    wrapperStyle={{ color: '#94a3b8', fontSize: 13 }}
-                  />
-                </PieChart>
-              </ResponsiveContainer>
-            ) : (
-              <div className="empty-state">
-                <div className="empty-state-title">No niche data yet</div>
-              </div>
-            )}
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={getNicheData()}
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={60}
+                  outerRadius={100}
+                  paddingAngle={3}
+                  dataKey="count"
+                  nameKey="niche"
+                  isAnimationActive={false}
+                >
+                  {getNicheData().map((_, i) => (
+                    <Cell key={i} fill={COLORS[i % COLORS.length]} />
+                  ))}
+                </Pie>
+                <Tooltip
+                  contentStyle={{
+                    background: '#1a1a2e',
+                    border: '1px solid #2a2a3a',
+                    borderRadius: 8,
+                    color: '#e2e8f0',
+                  }}
+                />
+                <Legend wrapperStyle={{ color: '#94a3b8', fontSize: 13 }} />
+              </PieChart>
+            </ResponsiveContainer>
           </div>
         </div>
       </div>
@@ -200,11 +170,9 @@ export default function Dashboard() {
                     <td style={{ color: 'var(--text-secondary)' }}>{lead.phone}</td>
                     <td>{lead.niche || '—'}</td>
                     <td>
-                      <span className={`badge badge-${lead.status === 'new' ? 'new' : lead.status === 'contacted' ? 'contacted' : lead.status === 'closed' ? 'closed' : 'new'}`}>
-                        {lead.status}
-                      </span>
+                      <span className={`badge badge-${lead.status}`}>{lead.status}</span>
                     </td>
-                    <td style={{ color: 'var(--text-secondary)' }}>{formatDate(lead.submittedAt)}</td>
+                    <td style={{ color: 'var(--text-secondary)' }}>{lead.submittedAt}</td>
                   </tr>
                 ))}
               </tbody>
