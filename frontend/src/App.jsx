@@ -1,4 +1,5 @@
 import { useState, useCallback } from 'react'
+import BackgroundFX from './components/BackgroundFX'
 import SplashScreen from './components/SplashScreen'
 import Navbar from './components/Navbar'
 import Hero from './components/Hero'
@@ -11,6 +12,7 @@ import Booking from './components/Booking'
 import CaseStudies from './components/CaseStudies'
 import Footer from './components/Footer'
 import Modal from './components/Modal'
+import WhatsAppFloat from './components/WhatsAppFloat'
 
 function App() {
   const [splashDone, setSplashDone] = useState(false)
@@ -24,22 +26,20 @@ function App() {
     <>
       {!splashDone && <SplashScreen onComplete={handleSplashComplete} />}
 
-      <div className="grid-bg" />
-      <div className="gradient-orb gradient-orb--1" />
-      <div className="gradient-orb gradient-orb--2" />
-      <div className="gradient-orb gradient-orb--3" />
+      <BackgroundFX />
 
       <Navbar openModal={openModal} />
       <Hero openModal={openModal} />
       <Services />
+      <CaseStudies />
       <Industries />
       <Results />
       <Process />
-      <CaseStudies />
       <Booking />
       <InquiryForm />
       <Footer openModal={openModal} />
       <Modal isOpen={modalOpen} onClose={closeModal} />
+      <WhatsAppFloat />
     </>
   )
 }

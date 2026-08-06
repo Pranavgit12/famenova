@@ -20,10 +20,10 @@ export default function Navbar({ openModal }) {
         </a>
         <ul className={`nav-links${mobileOpen ? ' open' : ''}`}>
           <li><a href="#services" onClick={handleLinkClick}>Services</a></li>
+          <li><a href="#case-studies" onClick={handleLinkClick}>Case Studies</a></li>
           <li><a href="#industries" onClick={handleLinkClick}>Industries</a></li>
           <li><a href="#results" onClick={handleLinkClick}>Results</a></li>
           <li><a href="#process" onClick={handleLinkClick}>Process</a></li>
-          <li><a href="#case-studies" onClick={handleLinkClick}>Case Studies</a></li>
           <li><a href="#booking" onClick={handleLinkClick}>Book a Meeting</a></li>
           <li>
             <button className="nav-cta" onClick={() => { handleLinkClick(); openModal(); }}>
@@ -32,7 +32,7 @@ export default function Navbar({ openModal }) {
           </li>
         </ul>
         <button
-          className="mobile-toggle"
+          className={`mobile-toggle${mobileOpen ? ' open' : ''}`}
           aria-label="Toggle menu"
           onClick={() => setMobileOpen(prev => !prev)}
         >
