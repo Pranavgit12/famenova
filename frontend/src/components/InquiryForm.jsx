@@ -2,6 +2,8 @@ import { useState } from 'react'
 import useScrollReveal from '../hooks/useScrollReveal'
 import { NICHE_OPTIONS } from '../utils/constants'
 import { submitForm } from '../services/api'
+import { WhatsAppIcon } from './WhatsAppFloat'
+import { WHATSAPP_LINK } from '../utils/constants'
 
 const PERKS = [
   'Free comprehensive brand & ad audit',
@@ -110,6 +112,15 @@ function InquiryFormCard() {
           <div className="form-success-icon">&#10003;</div>
           <h3>Application Received!</h3>
           <p>We'll be in touch within 24 hours to schedule your free strategy session.</p>
+          <a
+            href={WHATSAPP_LINK}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="wa-success-btn"
+          >
+            <WhatsAppIcon size={16} />
+            Chat with us now on WhatsApp
+          </a>
         </div>
       ) : (
         <form onSubmit={handleSubmit} noValidate>

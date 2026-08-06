@@ -34,27 +34,6 @@ const CASE_STUDIES = [
       { value: '4.8x', label: 'ROAS' },
     ],
   },
-  {
-    mediaLabel: 'Sample Campaign Concept',
-    videoSrc: '',
-    title: 'Cafe Growth \u2014 Before & After',
-    isBeforeAfter: true,
-    description:
-      'A sample campaign concept showing how strategic reels, targeted ads, and consistent content can transform a local cafe\u2019s digital presence.',
-    before: {
-      label: 'Before',
-      points: ['1k followers', 'Low engagement', 'No online enquiries'],
-    },
-    after: {
-      label: 'After',
-      points: ['Better reels', 'More enquiries', 'More customers'],
-    },
-    metrics: [
-      { value: '5x', label: 'Followers' },
-      { value: '3x', label: 'Engagement' },
-      { value: '40+', label: 'Enquiries/Mo' },
-    ],
-  },
 ]
 
 export default function Results() {

@@ -1,5 +1,7 @@
 import { useEffect, useRef } from 'react'
 import useScrollReveal from '../hooks/useScrollReveal'
+import { WhatsAppIcon } from './WhatsAppFloat'
+import { WHATSAPP_LINK } from '../utils/constants'
 
 const CALENDLY_URL = 'https://calendly.com/famenovaa/30min?hide_event_type_details=1&hide_gdpr_banner=1'
 
@@ -9,8 +11,21 @@ export default function Booking() {
       <div className="container">
         <SectionHeader />
         <CalendlyEmbed />
+        <WhatsAppCTA />
       </div>
     </section>
+  )
+}
+
+function WhatsAppCTA() {
+  const { ref, isVisible } = useScrollReveal()
+  return (
+    <div ref={ref} className={`wa-cta reveal${isVisible ? ' visible' : ''} reveal-delay-2`}>
+      <a href={WHATSAPP_LINK} target="_blank" rel="noopener noreferrer" className="wa-cta-btn">
+        <span className="wa-cta-icon"><WhatsAppIcon size={18} /></span>
+        Prefer to chat? Message us on WhatsApp
+      </a>
+    </div>
   )
 }
 
