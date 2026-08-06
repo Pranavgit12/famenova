@@ -1,12 +1,12 @@
-# REX Agency
+# FAMENOVA — SMMA Platform
 
-Full-stack SMMA platform with lead capture, admin dashboard, and analytics.
+Full-stack SMMA platform for FAMENOVA (paid advertising + short-form content agency) with lead capture, admin dashboard, analytics, and WhatsApp click-to-chat.
 
 ## Architecture
 
 ```
 rex-agency/
-├── frontend/           # React + Vite public website
+├── frontend/           # React + Vite public website (dark luxury UI)
 ├── backend/            # Node.js + Express API server
 ├── admin-dashboard/    # React + Vite admin panel
 ├── docs/               # Documentation
@@ -125,14 +125,20 @@ Default admin credentials:
 ## Features
 
 ### Public Website
+- Dark luxury UI: pure black `#050505` base, electric cobalt blue accents (`#4F8CFF`), positive/growth green (`#5BE37A`)
+- Liquid glassmorphism throughout — `backdrop-filter: blur(28px)`, 28–32px radii, subtle inner highlights
+- Cinematic ambient glow (top-right breathing volumetric light) + animated aurora, particles, cursor glow
 - Hero with animated stats and floating badges
 - Services showcase (Paid Ads, Short-Form Content, Lead Gen)
-- Case studies with metrics
-- 4-step process/methodology
-- High-converting inquiry form with validation
-- Modal popup form
-- Scroll-reveal animations
+- Case studies (ABC Realty, Café growth) with an Apple-style SVG analytics chart card — 2s line draw, glowing hover dot, floating "Revenue xN" tooltip, JAN–DEC axis
+- Industries grid, Results section, 4-step process/methodology
+- Calendly booking embed + high-converting inquiry form with validation and success state
+- **WhatsApp click-to-chat** — floating glass button (bottom-right, pulsing dot), booking CTA, and inquiry-form success button all open `wa.me` with a prefilled message
+- Modal popup form, scroll-reveal animations
 - Fully responsive (mobile-first)
+
+> **WhatsApp:** the business number and prefilled message live in `frontend/src/utils/constants.js`
+> (`WHATSAPP_NUMBER` / `WHATSAPP_LINK`). All buttons reuse these — change them in one place.
 
 ### Backend
 - Excel + JSON file storage
