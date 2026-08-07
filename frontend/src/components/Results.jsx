@@ -81,12 +81,16 @@ function ResultStat({ target, prefix, suffix, label, delay }) {
 }
 
 function CaseCard({ mediaLabel, videoSrc, title, description, metrics, isBeforeAfter, before, after, delay }) {
-  const { ref, isVisible } = useScrollReveal()
+  const { ref, isVisible } = useScrollReveal({ once: false, threshold: 0.2 })
   const videoRef = useRef(null)
 
   useEffect(() => {
-    if (isVisible && videoRef.current) {
-      videoRef.current.play().catch(() => {})
+    const video = videoRef.current
+    if (!video) return
+    if (isVisible) {
+      video.play().catch(() => {})
+    } else {
+      video.pause()
     }
   }, [isVisible])
 
@@ -123,6 +127,7 @@ function CaseCard({ mediaLabel, videoSrc, title, description, metrics, isBeforeA
               muted
               loop
               playsInline
+              preload="metadata"
             />
           ) : (
             <div className="case-card-media-placeholder">

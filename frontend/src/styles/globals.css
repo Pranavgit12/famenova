@@ -102,7 +102,7 @@ button { font-family: inherit; }
   background:
     radial-gradient(circle at 60% 60%, rgba(79, 140, 255, 0.14), transparent 55%),
     radial-gradient(circle at 40% 40%, rgba(122, 184, 255, 0.08), transparent 60%);
-  filter: blur(90px);
+  filter: blur(48px);
   animation: ambient-breathe 14s ease-in-out infinite alternate;
 }
 @keyframes ambient-breathe {
@@ -115,7 +115,7 @@ button { font-family: inherit; }
   z-index: -2;
   pointer-events: none;
   border-radius: 50%;
-  filter: blur(120px);
+  filter: blur(48px);
   will-change: transform;
 }
 .aurora--1 {
@@ -194,7 +194,9 @@ button { font-family: inherit; }
   background: radial-gradient(circle at center, rgba(79, 140, 255, 0.07), transparent 60%);
   mix-blend-mode: screen;
   will-change: transform;
+  transition: transform 0.45s var(--ease-out-expo);
 }
+@media (hover: none) { .cursor-glow { display: none; } }
 
 .noise-overlay {
   position: fixed;
@@ -331,12 +333,11 @@ button { font-family: inherit; }
     opacity 0.8s var(--ease-out-expo),
     transform 0.8s var(--ease-out-expo),
     filter 0.8s var(--ease-out-expo);
-  will-change: opacity, transform, filter;
 }
 .reveal.visible {
   opacity: 1;
   transform: none;
-  filter: blur(0);
+  filter: none;
 }
 .reveal-delay-1 { transition-delay: 0.08s; }
 .reveal-delay-2 { transition-delay: 0.16s; }
@@ -1566,8 +1567,30 @@ section:not(.hero) {
 .booking-widget,
 .floating-badge,
 .modal {
-  backdrop-filter: blur(28px) saturate(160%);
-  -webkit-backdrop-filter: blur(28px) saturate(160%);
+  backdrop-filter: blur(14px) saturate(140%);
+  -webkit-backdrop-filter: blur(14px) saturate(140%);
+}
+
+@media (max-width: 768px) {
+  .hero-card,
+  .service-card,
+  .industry-card,
+  .result-stat,
+  .case-card,
+  .cs-card,
+  .cs-detail,
+  .cs-strategy-card,
+  .cs-stat,
+  .analytics-chart,
+  .inquiry-form-card,
+  .booking-widget,
+  .floating-badge,
+  .modal {
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+  .aurora, .ambient-glow { filter: blur(32px); }
+  .aurora--1, .aurora--2, .aurora--3 { animation-duration: 60s; }
 }
 
 /* ===== ANALYTICS CHART ===== */
@@ -1601,9 +1624,9 @@ section:not(.hero) {
   height: 380px;
   border-radius: 50%;
   background: radial-gradient(circle at center, rgba(79, 140, 255, 0.16), transparent 62%);
-  filter: blur(50px);
+  filter: blur(28px);
   pointer-events: none;
-  animation: ac-glow-pulse 5s ease-in-out infinite;
+  animation: ac-glow-pulse 6s ease-in-out infinite;
 }
 @keyframes ac-glow-pulse {
   0%, 100% { opacity: 0.75; transform: scale(1); }

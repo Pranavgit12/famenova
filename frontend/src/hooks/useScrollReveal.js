@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from 'react'
 export default function useScrollReveal(options = {}) {
   const ref = useRef(null)
   const [isVisible, setIsVisible] = useState(false)
+  const once = options.once !== false
 
   useEffect(() => {
     const element = ref.current
@@ -12,7 +13,9 @@ export default function useScrollReveal(options = {}) {
       ([entry]) => {
         if (entry.isIntersecting) {
           setIsVisible(true)
-          observer.unobserve(element)
+          if (once) observer.unobserve(element)
+        } else if (!once) {
+          setIsVisible(false)
         }
       },
       {
@@ -23,7 +26,7 @@ export default function useScrollReveal(options = {}) {
 
     observer.observe(element)
     return () => observer.disconnect()
-  }, [options.threshold, options.rootMargin])
+  }, [options.threshold, options.rootMargin, once])
 
   return { ref, isVisible }
 }
