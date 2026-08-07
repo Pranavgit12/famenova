@@ -9,30 +9,20 @@ export default function BackgroundFX() {
     const glow = glowRef.current
     if (!glow) return
 
-    let x = window.innerWidth / 2
-    let y = window.innerHeight / 3
-    let tx = x
-    let ty = y
-    let raf
-
-    const onMove = (e) => {
-      tx = e.clientX
-      ty = e.clientY
+    const setPos = (x, y) => {
+      glow.style.transform = `translate3d(${x - 250}px, ${y - 250}px, 0)`
     }
 
-    const loop = () => {
-      x += (tx - x) * 0.09
-      y += (ty - y) * 0.09
-      glow.style.transform = `translate(${x - 250}px, ${y - 250}px)`
-      raf = requestAnimationFrame(loop)
+    setPos(window.innerWidth / 2, window.innerHeight / 3)
+
+    const onMove = (e) => {
+      setPos(e.clientX, e.clientY)
     }
 
     window.addEventListener('mousemove', onMove, { passive: true })
-    raf = requestAnimationFrame(loop)
 
     return () => {
       window.removeEventListener('mousemove', onMove)
-      cancelAnimationFrame(raf)
     }
   }, [])
 

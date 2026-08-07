@@ -4,6 +4,7 @@ import { WhatsAppIcon } from './WhatsAppFloat'
 import { WHATSAPP_LINK } from '../utils/constants'
 
 const CALENDLY_URL = 'https://calendly.com/famenovaa/30min?hide_event_type_details=1&hide_gdpr_banner=1'
+const CALENDLY_SCRIPT = 'https://assets.calendly.com/assets/external/widget.js'
 
 export default function Booking() {
   return (
@@ -46,15 +47,17 @@ function SectionHeader() {
 
 function CalendlyEmbed() {
   const containerRef = useRef(null)
-  const { ref: revealRef, isVisible } = useScrollReveal({ threshold: 0.1 })
+  const { ref: revealRef, isVisible } = useScrollReveal({ threshold: 0.05 })
 
   useEffect(() => {
     const container = containerRef.current
-    if (!container) return
+    if (!container || !isVisible) return
+    if (document.querySelector(`script[src="${CALENDLY_SCRIPT}"]`)) return
 
     const script = document.createElement('script')
-    script.src = 'https://assets.calendly.com/assets/external/widget.js'
+    script.src = CALENDLY_SCRIPT
     script.async = true
+    script.onload = () => window.Calendly?.initInlineWidgets()
     container.appendChild(script)
 
     return () => {
@@ -62,7 +65,7 @@ function CalendlyEmbed() {
         container.removeChild(script)
       }
     }
-  }, [])
+  }, [isVisible])
 
   return (
     <div ref={node => {
