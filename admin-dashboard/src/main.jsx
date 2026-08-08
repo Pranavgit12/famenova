@@ -6,9 +6,11 @@ import App from './App';
 import { AuthProvider } from './contexts/AuthContext';
 import './styles/admin.css';
 
+const BASENAME = window.location.pathname.startsWith('/admin') ? '/admin' : '/';
+
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <BrowserRouter basename="/admin">
+    <BrowserRouter basename={BASENAME}>
       <AuthProvider>
         <App />
         <Toaster
