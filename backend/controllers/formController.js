@@ -1,6 +1,6 @@
 const { VALID_NICHES, NICHE_LABELS } = require('../config/constants');
 const { sendLeadNotification } = require('../services/emailService');
-const { appendLead, getLeadCount } = require('../services/excelService');
+const { appendLead, getLeadCount } = require('../services/leads');
 const { formatDate } = require('../utils/helpers');
 
 function validateFormBody(body) {

@@ -1,4 +1,4 @@
-const { appendLead, getAllLeads, updateLeadById, deleteLeadById } = require('../services/excelService');
+const { appendLead, getAllLeads, updateLeadById, deleteLeadById } = require('../services/leads');
 const { formatDate, paginate, paginatedResponse } = require('../utils/helpers');
 
 async function createLead(req, res, next) {
@@ -20,7 +20,7 @@ async function createLead(req, res, next) {
 
     res.status(201).json({
       success: true,
-      message: 'Lead created successfully (Excel storage)',
+      message: 'Lead created successfully',
     });
   } catch (err) {
     next(err);
@@ -86,7 +86,7 @@ async function update(req, res, next) {
       return res.status(404).json({ success: false, message: 'Lead not found' });
     }
 
-    res.json({ success: true, message: 'Lead updated successfully (Excel storage)' });
+    res.json({ success: true, message: 'Lead updated successfully' });
   } catch (err) {
     next(err);
   }
@@ -105,7 +105,7 @@ async function remove(req, res, next) {
       return res.status(404).json({ success: false, message: 'Lead not found' });
     }
 
-    res.json({ success: true, message: 'Lead deleted successfully (Excel storage)' });
+    res.json({ success: true, message: 'Lead deleted successfully' });
   } catch (err) {
     next(err);
   }

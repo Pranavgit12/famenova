@@ -21,9 +21,9 @@ rex-agency/
 | Frontend        | React 18, Vite, React Router, Axios       |
 | Backend         | Node.js, Express, JWT, bcrypt             |
 | Admin Dashboard | React 18, Vite, Recharts, React Hot Toast |
-| Database        | Excel + JSON file storage                 |
+| Database        | PostgreSQL (when `DATABASE_URL` set) — Excel + JSON file fallback for local dev |
 | Email           | Nodemailer (Gmail SMTP)                   |
-| Deployment      | Docker Compose                            |
+| Deployment      | Vercel (frontend, backend serverless, admin dashboard) |
 
 ## Quick Start
 
@@ -81,6 +81,7 @@ Services:
 | `SMTP_USER`      | Gmail address                  | `rexagency0@gmail.com`               |
 | `SMTP_PASS`      | Gmail App Password             | —                                    |
 | `NOTIFY_EMAIL`   | Lead notification recipient    | `rexagency0@gmail.com`               |
+| `DATABASE_URL`   | Postgres connection string. Empty = Excel + JSON file fallback | — (optional) |
 | `EXCEL_PATH`     | Excel file fallback path       | `./dataset/leads.xlsx`               |
 
 ## API Endpoints
@@ -141,12 +142,26 @@ Default admin credentials:
 > (`WHATSAPP_NUMBER` / `WHATSAPP_LINK`). All buttons reuse these — change them in one place.
 
 ### Backend
-- Excel + JSON file storage
+- PostgreSQL storage (when `DATABASE_URL` is set, e.g. Supabase/Neon) with Excel + JSON file fallback for local dev
 - JWT authentication with role-based access
 - Email notifications via Gmail SMTP
 - Input validation and sanitization
 - Rate limiting and security headers
 - Paginated queries with search/filter
+
+## Vercel Deployment
+
+Three separate Vercel projects (each connects to the repo with a different root directory):
+
+| Project        | Root directory  | Required env vars |
+| -------------- | --------------- | ----------------- |
+| Backend API    | `backend`       | `DATABASE_URL`, `JWT_SECRET`, `CORS_ORIGIN`, `ADMIN_EMAIL`, `ADMIN_PASSWORD`, `SMTP_*`, `NOTIFY_EMAIL` |
+| Website        | `frontend`      | `VITE_API_URL` = backend URL |
+| Admin Dashboard| `admin-dashboard` | `VITE_API_URL` = backend URL |
+
+Deploy the **Backend API** project first (get its URL), then set `VITE_API_URL` to that URL on the Website and Admin Dashboard projects. Add both site URLs to the backend's `CORS_ORIGIN` (comma-separated).
+
+Admin dashboard URL: `https://<admin-project>.vercel.app/` — login-protected with the seeded `ADMIN_EMAIL`/`ADMIN_PASSWORD`.
 
 ### Admin Dashboard
 - Real-time lead statistics

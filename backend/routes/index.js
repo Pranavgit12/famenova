@@ -9,7 +9,9 @@ const leadsRoutes = require('./leads');
 const analyticsRoutes = require('./analytics');
 const bookingRoutes = require('./booking');
 
-ensureAdminSeeded();
+ensureAdminSeeded().catch((err) => {
+  console.error('[AUTH] Admin seeding failed:', err.message);
+});
 
 router.use('/form', formRoutes);
 router.use('/auth', authRoutes);

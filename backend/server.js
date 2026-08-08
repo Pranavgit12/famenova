@@ -118,9 +118,11 @@ app.use('/api/*', (_req, res) => {
 
 app.use(errorHandler);
 
-app.listen(PORT, () => {
-  console.log(`[SERVER] REX Agency running on http://localhost:${PORT} (${NODE_ENV})`);
-  console.log('[SERVER] Database: Excel + JSON file storage');
-});
+if (require.main === module) {
+  app.listen(PORT, () => {
+    console.log(`[SERVER] REX Agency running on http://localhost:${PORT} (${NODE_ENV})`);
+    console.log(`[SERVER] Storage: ${process.env.DATABASE_URL ? 'PostgreSQL' : 'Excel + JSON files'}`);
+  });
+}
 
 module.exports = app;

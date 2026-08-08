@@ -57,6 +57,8 @@ module.exports = {
   JWT_SECRET: resolveJwtSecret(),
   JWT_EXPIRES_IN: process.env.JWT_EXPIRES_IN || '12h',
   CORS_ORIGINS: resolveCorsOrigins(),
+  DATABASE_URL: process.env.DATABASE_URL || '',
+  USE_POSTGRES: Boolean(process.env.DATABASE_URL),
   SMTP_HOST: process.env.SMTP_HOST || 'smtp.gmail.com',
   SMTP_PORT: parseInt(process.env.SMTP_PORT || '587', 10),
   SMTP_USER: process.env.SMTP_USER,

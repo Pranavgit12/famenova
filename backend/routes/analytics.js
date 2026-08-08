@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { authenticate, authorize } = require('../middleware/auth');
-const { getAllLeads } = require('../services/excelService');
+const { getAllLeads } = require('../services/leads');
 const { IS_PRODUCTION } = require('../config/env');
 
 router.use(authenticate);
