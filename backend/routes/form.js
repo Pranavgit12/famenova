@@ -1,9 +1,25 @@
 const express = require('express');
 const router = express.Router();
 const { body } = require('express-validator');
+const rateLimit = require('express-rate-limit');
 const validate = require('../middleware/validate');
 const { submitForm, getLeadCountEndpoint } = require('../controllers/formController');
 const { VALID_NICHES } = require('../config/constants');
+
+const submitLimiter = rateLimit({
+  windowMs: 10 * 60 * 1000,
+  max: 5,
+  standardHeaders: 'draft-7',
+  legacyHeaders: false,
+  message: { success: false, message: 'Too many submissions. Please try again later.' },
+});
+
+const countLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 60,
+  standardHeaders: 'draft-7',
+  legacyHeaders: false,
+});
 
 const formValidation = [
   body('fullName')
@@ -27,8 +43,8 @@ const formValidation = [
     .isIn(VALID_NICHES).withMessage('Please select a valid industry'),
 ];
 
-router.post('/submit', formValidation, validate, submitForm);
+router.post('/submit', submitLimiter, formValidation, validate, submitForm);
 
-router.get('/leads/count', getLeadCountEndpoint);
+router.get('/leads/count', countLimiter, getLeadCountEndpoint);
 
 module.exports = router;

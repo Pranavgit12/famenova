@@ -1,9 +1,0 @@
-[
-  {
-    "id": 1,
-    "name": "Admin",
-    "email": "admin@rexagency.com",
-    "password": "$2a$10$ZWpsU9JPRdh4Lh9NeN/F6ulpfvM11bIwmASW4NvLAF2AlzOqSOTI2",
-    "role": "admin"
-  }
-]

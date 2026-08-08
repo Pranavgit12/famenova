@@ -1,4 +1,4 @@
-const XLSX = require('xlsx');
+const ExcelJS = require('exceljs');
 const path = require('path');
 const fs = require('fs');
 
@@ -15,142 +15,150 @@ const HEADERS = [
   'Submitted At',
 ];
 
-function ensureExcel() {
+const COLUMN_MAP = {
+  fullName: 1,
+  phone: 2,
+  location: 3,
+  businessName: 4,
+  niche: 5,
+  status: 6,
+  notes: 7,
+};
+
+const FORMULA_START = /^[=@\t\r]/;
+const FORMULA_LIKE = /^[+\-]\s*[A-Za-z(@=+\-]/;
+
+function sanitizeCell(value) {
+  const str = value == null ? '' : String(value);
+  if (str.length > 0 && (FORMULA_START.test(str) || FORMULA_LIKE.test(str))) {
+    return `'${str}`;
+  }
+  return str;
+}
+
+async function ensureExcel() {
   const dir = path.dirname(EXCEL_PATH);
   if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir, { recursive: true });
   }
 
   if (!fs.existsSync(EXCEL_PATH)) {
-    const wb = XLSX.utils.book_new();
-    const ws = XLSX.utils.aoa_to_sheet([HEADERS]);
-    XLSX.utils.book_append_sheet(wb, ws, 'Leads');
-    XLSX.writeFile(wb, EXCEL_PATH);
+    const wb = new ExcelJS.Workbook();
+    const ws = wb.addWorksheet('Leads');
+    ws.addRow(HEADERS);
+    await wb.xlsx.writeFile(EXCEL_PATH);
   }
 }
 
-function appendLead(lead) {
-  ensureExcel();
+async function appendLead(lead) {
+  await ensureExcel();
 
-  const wb = XLSX.readFile(EXCEL_PATH);
-  const ws = wb.Sheets[wb.SheetNames[0]];
+  const wb = new ExcelJS.Workbook();
+  await wb.xlsx.readFile(EXCEL_PATH);
+  const ws = wb.getWorksheet(1);
 
   const submittedDate = lead.submittedAt
     ? new Date(lead.submittedAt).toLocaleString('en-US', { timeZone: 'America/New_York' })
     : new Date().toLocaleString('en-US', { timeZone: 'America/New_York' });
 
-  const rowData = [
-    lead.fullName,
-    lead.phone,
-    lead.location,
-    lead.businessName,
-    lead.niche,
-    lead.status || 'new',
-    lead.notes || '',
+  ws.addRow([
+    sanitizeCell(lead.fullName),
+    sanitizeCell(lead.phone),
+    sanitizeCell(lead.location),
+    sanitizeCell(lead.businessName),
+    sanitizeCell(lead.niche),
+    sanitizeCell(lead.status || 'new'),
+    sanitizeCell(lead.notes || ''),
     submittedDate,
-  ];
+  ]);
 
-  const range = XLSX.utils.decode_range(ws['!ref']);
-  const nextRow = range.e.r + 1;
+  await wb.xlsx.writeFile(EXCEL_PATH);
+}
 
-  for (let col = 0; col < rowData.length; col++) {
-    const cellRef = XLSX.utils.encode_cell({ r: nextRow, c: col });
-    ws[cellRef] = { t: 's', v: rowData[col] };
-  }
+async function getAllLeads() {
+  await ensureExcel();
 
-  ws['!ref'] = XLSX.utils.encode_range({
-    s: { r: 0, c: 0 },
-    e: { r: nextRow, c: rowData.length - 1 },
+  const wb = new ExcelJS.Workbook();
+  await wb.xlsx.readFile(EXCEL_PATH);
+  const ws = wb.getWorksheet(1);
+
+  const rows = [];
+  ws.eachRow((row, rowNumber) => {
+    if (rowNumber === 1) return;
+    const get = (index) => {
+      const cell = row.getCell(index).value;
+      if (cell === null || cell === undefined) return '';
+      if (typeof cell === 'object' && 'text' in cell && cell.richText) {
+        return cell.richText.map((t) => t.text).join('');
+      }
+      return String(cell);
+    };
+
+    rows.push({
+      id: rowNumber - 1,
+      fullName: get(1),
+      phone: get(2),
+      location: get(3),
+      businessName: get(4),
+      niche: get(5),
+      status: get(6),
+      notes: get(7),
+      submittedAt: get(8),
+    });
   });
 
-  XLSX.writeFile(wb, EXCEL_PATH);
+  return rows;
 }
 
-function getAllLeads() {
-  ensureExcel();
-
-  const wb = XLSX.readFile(EXCEL_PATH);
-  const ws = wb.Sheets[wb.SheetNames[0]];
-  const data = XLSX.utils.sheet_to_json(ws);
-
-  return data.map((row, index) => ({
-    id: index + 1,
-    fullName: row['Full Name'] || '',
-    phone: row['Phone Number'] || '',
-    location: row['Location / City'] || '',
-    businessName: row['Business Name'] || '',
-    niche: row['Business Niche'] || '',
-    status: row['Status'] || 'new',
-    notes: row['Notes'] || '',
-    submittedAt: row['Submitted At'] || '',
-  }));
-}
-
-function getLeadCount() {
+async function getLeadCount() {
   if (!fs.existsSync(EXCEL_PATH)) return 0;
 
-  const wb = XLSX.readFile(EXCEL_PATH);
-  const ws = wb.Sheets[wb.SheetNames[0]];
-  const range = XLSX.utils.decode_range(ws['!ref']);
-  return range.e.r;
+  const wb = new ExcelJS.Workbook();
+  await wb.xlsx.readFile(EXCEL_PATH);
+  const ws = wb.getWorksheet(1);
+
+  return Math.max(0, ws.rowCount - 1);
 }
 
-function updateLeadById(id, updates) {
-  ensureExcel();
+async function updateLeadById(id, updates) {
+  await ensureExcel();
 
-  const wb = XLSX.readFile(EXCEL_PATH);
-  const ws = wb.Sheets[wb.SheetNames[0]];
-  const range = XLSX.utils.decode_range(ws['!ref']);
+  const wb = new ExcelJS.Workbook();
+  await wb.xlsx.readFile(EXCEL_PATH);
+  const ws = wb.getWorksheet(1);
 
-  const rowIndex = id;
-  if (rowIndex < 1 || rowIndex > range.e.r) {
+  const rowIndex = Number(id) + 1;
+  if (rowIndex < 2 || rowIndex > ws.rowCount) {
     return false;
   }
 
-  const fieldMap = {
-    fullName: 0,
-    phone: 1,
-    location: 2,
-    businessName: 3,
-    niche: 4,
-    status: 5,
-    notes: 6,
-  };
+  const row = ws.getRow(rowIndex);
 
   Object.keys(updates).forEach((key) => {
-    if (fieldMap[key] !== undefined && updates[key] !== undefined) {
-      const cellRef = XLSX.utils.encode_cell({ r: rowIndex, c: fieldMap[key] });
-      ws[cellRef] = { t: 's', v: updates[key] };
+    if (COLUMN_MAP[key] !== undefined && updates[key] !== undefined) {
+      row.getCell(COLUMN_MAP[key]).value = sanitizeCell(updates[key]);
     }
   });
 
-  XLSX.writeFile(wb, EXCEL_PATH);
+  row.commit();
+  await wb.xlsx.writeFile(EXCEL_PATH);
   return true;
 }
 
-function deleteLeadById(id) {
-  ensureExcel();
+async function deleteLeadById(id) {
+  await ensureExcel();
 
-  const wb = XLSX.readFile(EXCEL_PATH);
-  const ws = wb.Sheets[wb.SheetNames[0]];
-  const range = XLSX.utils.decode_range(ws['!ref']);
+  const wb = new ExcelJS.Workbook();
+  await wb.xlsx.readFile(EXCEL_PATH);
+  const ws = wb.getWorksheet(1);
 
-  const rowIndex = id;
-  if (rowIndex < 1 || rowIndex > range.e.r) {
+  const rowIndex = Number(id) + 1;
+  if (rowIndex < 2 || rowIndex > ws.rowCount) {
     return false;
   }
 
-  for (let col = range.s.c; col <= range.e.c; col++) {
-    const cellRef = XLSX.utils.encode_cell({ r: rowIndex, c: col });
-    delete ws[cellRef];
-  }
-
-  ws['!ref'] = XLSX.utils.encode_range({
-    s: { r: 0, c: 0 },
-    e: { r: range.e.r - 1, c: range.e.c },
-  });
-
-  XLSX.writeFile(wb, EXCEL_PATH);
+  ws.spliceRows(rowIndex, 1);
+  await wb.xlsx.writeFile(EXCEL_PATH);
   return true;
 }
 

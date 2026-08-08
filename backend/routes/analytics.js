@@ -2,13 +2,19 @@ const express = require('express');
 const router = express.Router();
 const { authenticate, authorize } = require('../middleware/auth');
 const { getAllLeads } = require('../services/excelService');
+const { IS_PRODUCTION } = require('../config/env');
 
 router.use(authenticate);
 router.use(authorize('admin', 'editor'));
 
-router.get('/overview', (_req, res) => {
+function fail(res, err) {
+  const message = IS_PRODUCTION ? 'Internal server error' : err.message;
+  res.status(500).json({ success: false, message });
+}
+
+router.get('/overview', async (_req, res) => {
   try {
-    const leads = getAllLeads();
+    const leads = await getAllLeads();
     const total = leads.length;
     const byStatus = {};
     leads.forEach((l) => {
@@ -27,13 +33,13 @@ router.get('/overview', (_req, res) => {
       },
     });
   } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
+    fail(res, err);
   }
 });
 
-router.get('/trends', (_req, res) => {
+router.get('/trends', async (_req, res) => {
   try {
-    const leads = getAllLeads();
+    const leads = await getAllLeads();
     const byDate = {};
 
     leads.forEach((l) => {
@@ -50,13 +56,13 @@ router.get('/trends', (_req, res) => {
 
     res.json({ success: true, data });
   } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
+    fail(res, err);
   }
 });
 
-router.get('/by-niche', (_req, res) => {
+router.get('/by-niche', async (_req, res) => {
   try {
-    const leads = getAllLeads();
+    const leads = await getAllLeads();
     const counts = {};
 
     leads.forEach((l) => {
@@ -70,13 +76,13 @@ router.get('/by-niche', (_req, res) => {
 
     res.json({ success: true, data });
   } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
+    fail(res, err);
   }
 });
 
-router.get('/by-location', (_req, res) => {
+router.get('/by-location', async (_req, res) => {
   try {
-    const leads = getAllLeads();
+    const leads = await getAllLeads();
     const counts = {};
 
     leads.forEach((l) => {
@@ -91,13 +97,13 @@ router.get('/by-location', (_req, res) => {
 
     res.json({ success: true, data });
   } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
+    fail(res, err);
   }
 });
 
-router.get('/funnel', (_req, res) => {
+router.get('/funnel', async (_req, res) => {
   try {
-    const leads = getAllLeads();
+    const leads = await getAllLeads();
     const total = leads.length;
     const contacted = leads.filter((l) => l.status === 'contacted' || l.status === 'closed').length;
     const closed = leads.filter((l) => l.status === 'closed').length;
@@ -110,7 +116,7 @@ router.get('/funnel', (_req, res) => {
 
     res.json({ success: true, data });
   } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
+    fail(res, err);
   }
 });
 

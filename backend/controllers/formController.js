@@ -44,14 +44,10 @@ async function submitForm(req, res, next) {
       nicheKey: req.body.niche,
     };
 
-    let saved = false;
-
-    if (!saved) {
-      appendLead({
-        ...leadData,
-        submittedAt: formatDate(new Date()),
-      });
-    }
+    await appendLead({
+      ...leadData,
+      submittedAt: formatDate(new Date()),
+    });
 
     sendLeadNotification({
       ...leadData,
@@ -67,9 +63,9 @@ async function submitForm(req, res, next) {
   }
 }
 
-function getLeadCountEndpoint(_req, res) {
+async function getLeadCountEndpoint(_req, res) {
   try {
-    const count = getLeadCount();
+    const count = await getLeadCount();
     res.json({ success: true, data: { count } });
   } catch (err) {
     res.status(500).json({ success: true, data: { count: 0 } });

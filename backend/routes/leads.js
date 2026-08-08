@@ -40,6 +40,20 @@ const createLeadValidation = [
     .isLength({ max: 2000 }).withMessage('Notes too long'),
 ];
 
+const updateLeadValidation = [
+  body('status')
+    .optional()
+    .isIn(['new', 'contacted', 'qualified', 'closed', 'lost']).withMessage('Invalid status'),
+  body('notes')
+    .optional()
+    .isLength({ max: 2000 }).withMessage('Notes too long'),
+  body('fullName').not().exists().withMessage('Field is read-only'),
+  body('phone').not().exists().withMessage('Field is read-only'),
+  body('location').not().exists().withMessage('Field is read-only'),
+  body('businessName').not().exists().withMessage('Field is read-only'),
+  body('niche').not().exists().withMessage('Field is read-only'),
+];
+
 router.use(authenticate);
 router.use(authorize('admin', 'editor'));
 
@@ -47,7 +61,7 @@ router.get('/stats', getStats);
 router.get('/', getAll);
 router.get('/:id', getById);
 router.post('/', createLeadValidation, validate, createLead);
-router.put('/:id', update);
+router.put('/:id', updateLeadValidation, validate, update);
 router.delete('/:id', authorize('admin'), remove);
 
 module.exports = router;

@@ -1,7 +1,7 @@
 {
   "name": "rex-agency",
-  "version": "2.0.0",
-  "description": "REX Agency — Full-stack SMMA platform with React, Express, and Admin Dashboard",
+  "version": "2.1.0",
+  "description": "REX Agency - Full-stack SMMA platform with React, Express, and Admin Dashboard",
   "private": true,
   "scripts": {
     "install:all": "npm install --prefix backend && npm install --prefix frontend && npm install --prefix admin-dashboard",
@@ -15,7 +15,8 @@
     "start": "npm start --prefix backend",
     "docker:up": "docker-compose up -d",
     "docker:down": "docker-compose down",
-    "docker:build": "docker-compose build"
+    "docker:build": "docker-compose build",
+    "audit": "npm audit"
   },
   "keywords": [
     "smma",
@@ -28,12 +29,5 @@
   "license": "MIT",
   "devDependencies": {
     "concurrently": "^9.1.0"
-  },
-  "dependencies": {
-    "cors": "^2.8.6",
-    "dotenv": "^17.4.2",
-    "express": "^5.2.1",
-    "nodemailer": "^9.0.3",
-    "xlsx": "^0.18.5"
   }
 }

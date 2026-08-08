@@ -1,33 +1,60 @@
 const fs = require('fs');
 const path = require('path');
+const crypto = require('crypto');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
-const JWT_SECRET = process.env.JWT_SECRET || 'dev-secret-change-me';
-const JWT_EXPIRES_IN = '7d';
-const USERS_PATH = path.resolve('./users.json');
+const { JWT_SECRET, JWT_EXPIRES_IN, IS_PRODUCTION, ADMIN_EMAIL, ADMIN_PASSWORD } = require('../config/env');
 
-const DEFAULT_ADMIN = {
-  id: 1,
-  name: 'Admin',
-  email: 'admin@rexagency.com',
-  password: bcrypt.hashSync('admin123', 10),
-  role: 'admin',
-};
+const USERS_PATH = path.resolve(__dirname, '..', 'users.json');
+const USERS_TMP_PATH = `${USERS_PATH}.tmp`;
 
 function loadUsers() {
   if (!fs.existsSync(USERS_PATH)) {
-    fs.writeFileSync(USERS_PATH, JSON.stringify([DEFAULT_ADMIN], null, 2));
+    throw new Error('users.json not found. Run ensureAdminSeeded() at startup.');
   }
   return JSON.parse(fs.readFileSync(USERS_PATH, 'utf-8'));
 }
 
 function saveUsers(users) {
-  fs.writeFileSync(USERS_PATH, JSON.stringify(users, null, 2));
+  const tmpPath = USERS_TMP_PATH;
+  fs.writeFileSync(tmpPath, JSON.stringify(users, null, 2));
+  fs.renameSync(tmpPath, USERS_PATH);
+}
+
+function ensureAdminSeeded() {
+  if (fs.existsSync(USERS_PATH)) return;
+
+  const email = String(ADMIN_EMAIL || 'admin@rexagency.com').toLowerCase().trim();
+  const password = ADMIN_PASSWORD;
+
+  if (!password && IS_PRODUCTION) {
+    throw new Error(
+      '[AUTH] ADMIN_PASSWORD environment variable is required on first boot in production.'
+    );
+  }
+
+  const finalPassword = password || crypto.randomBytes(9).toString('hex');
+
+  const admin = {
+    id: 1,
+    name: 'Admin',
+    email,
+    password: bcrypt.hashSync(finalPassword, 12),
+    role: 'admin',
+  };
+
+  saveUsers([admin]);
+
+  if (!password) {
+    console.log(`[AUTH] Generated admin credentials -> ${email} / ${finalPassword}`);
+  } else {
+    console.log(`[AUTH] Seeded initial admin account -> ${email}`);
+  }
 }
 
 function generateToken(payload) {
-  return jwt.sign(payload, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN });
+  return jwt.sign(payload, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN, issuer: 'rex-agency' });
 }
 
 async function login(req, res) {
@@ -66,7 +93,7 @@ async function login(req, res) {
 
 async function register(req, res) {
   try {
-    const { name, email, password, role } = req.body;
+    const { name, email, password } = req.body;
 
     if (!name || !email || !password) {
       return res.status(400).json({ success: false, message: 'Name, email, and password are required' });
@@ -82,24 +109,21 @@ async function register(req, res) {
       return res.status(409).json({ success: false, message: 'Email already registered' });
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10);
+    const hashedPassword = await bcrypt.hash(password, 12);
     const newUser = {
       id: users.length > 0 ? Math.max(...users.map((u) => u.id)) + 1 : 1,
-      name: name.trim(),
-      email: email.toLowerCase().trim(),
+      name: String(name).trim(),
+      email: String(email).toLowerCase().trim(),
       password: hashedPassword,
-      role: role === 'admin' ? 'admin' : 'editor',
+      role: 'editor',
     };
 
     users.push(newUser);
     saveUsers(users);
 
-    const token = generateToken({ id: newUser.id, email: newUser.email, role: newUser.role });
-
     res.status(201).json({
       success: true,
       data: {
-        token,
         user: { id: newUser.id, name: newUser.name, email: newUser.email, role: newUser.role },
       },
     });
@@ -147,7 +171,7 @@ async function updatePassword(req, res) {
       return res.status(401).json({ success: false, message: 'Current password is incorrect' });
     }
 
-    users[idx].password = await bcrypt.hash(newPassword, 10);
+    users[idx].password = await bcrypt.hash(newPassword, 12);
     saveUsers(users);
 
     res.json({ success: true, message: 'Password updated successfully' });
@@ -157,4 +181,4 @@ async function updatePassword(req, res) {
   }
 }
 
-module.exports = { login, register, getProfile, updatePassword };
+module.exports = { login, register, getProfile, updatePassword, ensureAdminSeeded };

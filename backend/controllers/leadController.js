@@ -16,7 +16,7 @@ async function createLead(req, res, next) {
       notes: notes ? String(notes).trim() : '',
     };
 
-    appendLead({ ...leadData, submittedAt: formatDate(new Date()) });
+    await appendLead({ ...leadData, submittedAt: formatDate(new Date()) });
 
     res.status(201).json({
       success: true,
@@ -29,13 +29,13 @@ async function createLead(req, res, next) {
 
 async function getAll(req, res, next) {
   try {
-    const { page, limit, search, status, niche } = req.query;
+    const { page, limit, search, status } = req.query;
     const { page: p, limit: l, skip } = paginate(page, limit);
 
-    let leads = getAllLeads();
+    let leads = await getAllLeads();
 
     if (search) {
-      const q = search.toLowerCase();
+      const q = String(search).toLowerCase();
       leads = leads.filter(
         (lead) =>
           lead.fullName.toLowerCase().includes(q) ||
@@ -59,7 +59,7 @@ async function getAll(req, res, next) {
 async function getById(req, res, next) {
   try {
     const { id } = req.params;
-    const leads = getAllLeads();
+    const leads = await getAllLeads();
     const lead = leads.find((l) => String(l.id) === String(id));
 
     if (!lead) {
@@ -77,7 +77,11 @@ async function update(req, res, next) {
     const { id } = req.params;
     const updates = req.body;
 
-    const updated = updateLeadById(parseInt(id, 10), updates);
+    if (!Number.isInteger(Number(id)) || Number(id) < 1) {
+      return res.status(400).json({ success: false, message: 'Invalid lead id' });
+    }
+
+    const updated = await updateLeadById(parseInt(id, 10), updates);
     if (!updated) {
       return res.status(404).json({ success: false, message: 'Lead not found' });
     }
@@ -92,7 +96,11 @@ async function remove(req, res, next) {
   try {
     const { id } = req.params;
 
-    const deleted = deleteLeadById(parseInt(id, 10));
+    if (!Number.isInteger(Number(id)) || Number(id) < 1) {
+      return res.status(400).json({ success: false, message: 'Invalid lead id' });
+    }
+
+    const deleted = await deleteLeadById(parseInt(id, 10));
     if (!deleted) {
       return res.status(404).json({ success: false, message: 'Lead not found' });
     }
@@ -105,7 +113,7 @@ async function remove(req, res, next) {
 
 async function getStats(_req, res, next) {
   try {
-    const leads = getAllLeads();
+    const leads = await getAllLeads();
     const total = leads.length;
     const byStatus = {};
     const nicheCounts = {};

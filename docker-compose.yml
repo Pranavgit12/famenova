@@ -12,8 +12,11 @@ services:
     environment:
       - PORT=5000
       - NODE_ENV=production
-      - JWT_SECRET=${JWT_SECRET:-change-this-in-production}
-      - JWT_EXPIRES_IN=7d
+      - JWT_SECRET=${JWT_SECRET:?JWT_SECRET is required - generate with: node -e "console.log(require('crypto').randomBytes(48).toString('hex'))"}
+      - JWT_EXPIRES_IN=12h
+      - ADMIN_EMAIL=${ADMIN_EMAIL:-admin@rexagency.com}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD:?ADMIN_PASSWORD is required on first boot}
+      - CORS_ORIGIN=${CORS_ORIGIN:?CORS_ORIGIN is required - comma-separated allowed origins}
       - SMTP_HOST=${SMTP_HOST:-smtp.gmail.com}
       - SMTP_PORT=${SMTP_PORT:-587}
       - SMTP_USER=${SMTP_USER}

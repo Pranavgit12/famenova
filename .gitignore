@@ -9,11 +9,25 @@ frontend/dist/
 admin-dashboard/dist/
 backend/dataset/
 
-# Environment
+# Environment - NEVER commit these
 .env
+.env.local
+.env.*.local
 backend/.env
+backend/.env.local
 frontend/.env
 admin-dashboard/.env
+
+# Runtime data
+backend/users.json
+backend/users.json.bak
+backend/users.json.tmp
+backend/uploads/
+dataset/*.xlsx
+
+# Logs
+*.log
+backend/logs/
 
 # OS
 .DS_Store
@@ -23,12 +37,5 @@ Thumbs.db
 .vscode/
 .idea/
 
-# Logs
-*.log
-backend/logs/
-
-# Uploads
-backend/uploads/
-
-# Dataset (generated file)
-dataset/*.xlsx
+# Source maps (production)
+*.js.map
